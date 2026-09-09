@@ -1,0 +1,2795 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Deadline Drift — Academic Planner</title>
+
+<style>
+
+/* =========================================================
+   RESET & VARIABLES
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #f6f7fb;
+    --surface: #ffffff;
+    --border: #e7e9ef;
+    --text: #171a24;
+    --muted: #737887;
+    --primary: #5b4ce2;
+    --primary-dark: #4738c7;
+    --high: #e05252;
+    --medium: #e49a38;
+    --low: #4b9b72;
+}
+
+body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont,
+                 "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* =========================================================
+   APP
+========================================================= */
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar {
+    width: 250px;
+    background: #11131a;
+    color: white;
+    padding: 28px 18px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 10px;
+    margin-bottom: 45px;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    background: var(--primary);
+    font-weight: 800;
+    font-size: 19px;
+}
+
+.brand h2 {
+    font-size: 15px;
+    letter-spacing: -0.2px;
+}
+
+.brand span {
+    display: block;
+    color: #8d91a0;
+    font-size: 10px;
+    margin-top: 3px;
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.nav-item {
+    border: 0;
+    background: transparent;
+    color: #9296a5;
+    padding: 13px 14px;
+    border-radius: 10px;
+    text-align: left;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 13px;
+}
+
+.nav-item span {
+    width: 18px;
+    text-align: center;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background: #20232e;
+    color: white;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+}
+
+.mini-profile {
+    border-top: 1px solid #292c36;
+    padding: 18px 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #302b62;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.mini-profile strong {
+    display: block;
+    font-size: 12px;
+}
+
+.mini-profile small {
+    color: #777b89;
+    font-size: 10px;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    padding: 35px 45px;
+    max-width: 1500px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.eyebrow,
+.section-kicker {
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.topbar h1 {
+    margin-top: 6px;
+    font-size: 29px;
+    letter-spacing: -1px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.primary-btn {
+    border: 0;
+    background: var(--primary);
+    color: white;
+    padding: 11px 17px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+.primary-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.primary-btn span {
+    font-size: 17px;
+    vertical-align: -1px;
+    margin-right: 5px;
+}
+
+.secondary-btn {
+    border: 1px solid var(--border);
+    background: white;
+    padding: 11px 17px;
+    border-radius: 9px;
+    font-size: 12px;
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 7px 0 3px;
+}
+
+.stat-note {
+    font-size: 10px;
+    color: #9a9eaa;
+}
+
+.progress-track {
+    height: 5px;
+    background: #ececf3;
+    border-radius: 10px;
+    margin-top: 9px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0;
+    background: var(--primary);
+    transition: width 0.3s;
+}
+
+/* =========================================================
+   RECOMMENDATION
+========================================================= */
+
+.recommendation {
+    background: #191a25;
+    color: white;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 18px;
+}
+
+.recommendation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.recommendation h2 {
+    font-size: 20px;
+    margin: 5px 0;
+}
+
+.recommendation p {
+    color: #989baa;
+    font-size: 11px;
+}
+
+.spark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #2c2d3a;
+    display: grid;
+    place-items: center;
+    color: #a99fff;
+}
+
+.recommended-task {
+    margin-top: 20px;
+    background: #242531;
+    border: 1px solid #343642;
+    border-radius: 12px;
+    padding: 17px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recommended-title {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.recommended-meta {
+    color: #9b9eac;
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+.start-btn {
+    border: 0;
+    background: white;
+    color: #191a25;
+    padding: 9px 13px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.empty-recommendation {
+    margin-top: 18px;
+    padding: 15px;
+    background: #242531;
+    color: #9b9eac;
+    border-radius: 10px;
+    font-size: 11px;
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1.65fr 1fr;
+    gap: 18px;
+}
+
+.panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 21px;
+}
+
+.panel-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.panel-heading h2 {
+    font-size: 16px;
+    margin-top: 4px;
+}
+
+.panel-heading select,
+.task-tools select {
+    border: 1px solid var(--border);
+    background: white;
+    padding: 8px 10px;
+    border-radius: 7px;
+    font-size: 11px;
+    color: var(--muted);
+}
+
+/* =========================================================
+   TASKS
+========================================================= */
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.task-card {
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.task-card:hover {
+    border-color: #c8c4ef;
+    transform: translateY(-1px);
+}
+
+.task-main {
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+}
+
+.task-check {
+    width: 19px;
+    height: 19px;
+    border: 1px solid #cfd2db;
+    border-radius: 6px;
+    flex-shrink: 0;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 10px;
+    background: white;
+}
+
+.task-check.done {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.task-title {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.task-title.completed {
+    text-decoration: line-through;
+    color: #999da8;
+}
+
+.task-meta {
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+.task-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.priority-badge {
+    padding: 4px 7px;
+    border-radius: 5px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.priority-high {
+    background: #fceaea;
+    color: var(--high);
+}
+
+.priority-medium {
+    background: #fff4e4;
+    color: var(--medium);
+}
+
+.priority-low {
+    background: #eaf7ef;
+    color: var(--low);
+}
+
+.delete-btn {
+    border: 0;
+    background: transparent;
+    color: #b4b7c0;
+    font-size: 15px;
+}
+
+.delete-btn:hover {
+    color: var(--high);
+}
+
+/* =========================================================
+   DEADLINES
+========================================================= */
+
+.deadline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.deadline-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 11px;
+    border-bottom: 1px solid #f0f0f3;
+}
+
+.date-box {
+    width: 40px;
+    text-align: center;
+    border-radius: 8px;
+    background: #f4f3fb;
+    padding: 6px 3px;
+}
+
+.date-box strong {
+    display: block;
+    font-size: 15px;
+}
+
+.date-box small {
+    font-size: 8px;
+    color: var(--muted);
+}
+
+.deadline-info strong {
+    display: block;
+    font-size: 11px;
+}
+
+.deadline-info span {
+    color: var(--muted);
+    font-size: 9px;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 16, 22, 0.58);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal {
+    width: 100%;
+    max-width: 520px;
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+.modal-header h2 {
+    margin-top: 5px;
+    font-size: 19px;
+}
+
+.close-btn {
+    border: 0;
+    background: transparent;
+    font-size: 24px;
+    color: #898d98;
+}
+
+.form-group {
+    margin-bottom: 17px;
+    flex: 1;
+}
+
+.form-group label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 7px;
+    color: #545865;
+}
+
+.form-group input,
+.form-group select,
+.task-tools input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 11px;
+    outline: none;
+    font-size: 11px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--primary);
+}
+
+.form-row {
+    display: flex;
+    gap: 13px;
+}
+
+.priority-options {
+    display: flex;
+    gap: 20px;
+}
+
+.priority-option {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+}
+
+.priority-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.high-dot {
+    background: var(--high);
+}
+
+.medium-dot {
+    background: var(--medium);
+}
+
+.low-dot {
+    background: var(--low);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 23px;
+}
+
+/* =========================================================
+   TOOLS
+========================================================= */
+
+.task-tools {
+    display: flex;
+    gap: 8px;
+}
+
+.task-tools input {
+    width: 180px;
+}
+
+.empty-state {
+    color: #999da8;
+    font-size: 11px;
+    text-align: center;
+    padding: 25px 5px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .sidebar {
+        width: 210px;
+    }
+
+    .main {
+        margin-left: 210px;
+        width: calc(100% - 210px);
+        padding: 28px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+
+    .sidebar {
+        position: static;
+        width: 100%;
+        min-height: auto;
+    }
+
+    .app {
+        flex-direction: column;
+    }
+
+    .sidebar-bottom {
+        display: none;
+    }
+
+    .brand {
+        margin-bottom: 15px;
+    }
+
+    nav {
+        flex-direction: row;
+    }
+
+    .nav-item {
+        flex: 1;
+    }
+
+    .main {
+        margin-left: 0;
+        width: 100%;
+        padding: 22px 16px;
+    }
+
+    .topbar {
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .topbar h1 {
+        font-size: 23px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .recommended-task {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 13px;
+    }
+
+    .task-tools {
+        flex-direction: column;
+    }
+
+    .task-tools input {
+        width: 100%;
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            D
+        </div>
+
+        <div>
+            <h2>Deadline Drift</h2>
+            <span>Academic Planner</span>
+        </div>
+
+    </div>
+
+    <nav>
+
+        <button class="nav-item active" data-section="dashboard">
+            <span>▦</span>
+            Dashboard
+        </button>
+
+        <button class="nav-item" data-section="tasks">
+            <span>✓</span>
+            My Tasks
+        </button>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+
+        <div class="mini-profile">
+
+            <div class="avatar">
+                P
+            </div>
+
+            <div>
+                <strong>Student</strong>
+                <small>Academic Workspace</small>
+            </div>
+
+        </div>
+
+    </div>
+
+</aside>
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="main">
+
+<header class="topbar">
+
+    <div>
+
+        <p class="eyebrow">
+            YOUR ACADEMIC WORKSPACE
+        </p>
+
+        <h1 id="pageTitle">
+            Good morning
+        </h1>
+
+    </div>
+
+    <button class="primary-btn" id="openModal">
+        <span>+</span>
+        Add Task
+    </button>
+
+</header>
+
+<!-- =====================================================
+     DASHBOARD
+===================================================== -->
+
+<section id="dashboardSection">
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            Due Today
+        </div>
+
+        <div class="stat-value" id="todayCount">
+            0
+        </div>
+
+        <div class="stat-note">
+            Tasks requiring attention
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            Upcoming
+        </div>
+
+        <div class="stat-value" id="upcomingCount">
+            0
+        </div>
+
+        <div class="stat-note">
+            Next 7 days
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            Completed
+        </div>
+
+        <div class="stat-value" id="completedCount">
+            0
+        </div>
+
+        <div class="stat-note">
+            Tasks finished
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            Progress
+        </div>
+
+        <div class="stat-value" id="progressValue">
+            0%
+        </div>
+
+        <div class="progress-track">
+
+            <div
+                class="progress-fill"
+                id="progressFill">
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =====================================================
+     SMART RECOMMENDATION
+===================================================== -->
+
+<section class="recommendation">
+
+    <div class="recommendation-header">
+
+        <div>
+
+            <span class="section-kicker">
+                SMART PRIORITY
+            </span>
+
+            <h2>
+                What should I do now?
+            </h2>
+
+            <p>
+                Based on deadline, priority and estimated effort.
+            </p>
+
+        </div>
+
+        <div class="spark">
+            ✦
+        </div>
+
+    </div>
+
+    <div id="recommendationContent">
+
+        <div class="empty-recommendation">
+            No active tasks. Add a task to get a recommendation.
+        </div>
+
+    </div>
+
+</section>
+
+<!-- =====================================================
+     CONTENT
+===================================================== -->
+
+<div class="content-grid">
+
+<section class="panel">
+
+    <div class="panel-heading">
+
+        <div>
+
+            <span class="section-kicker">
+                YOUR WORKLOAD
+            </span>
+
+            <h2>
+                Upcoming Tasks
+            </h2>
+
+        </div>
+
+        <select id="dashboardFilter">
+
+            <option value="all">
+                All tasks
+            </option>
+
+            <option value="high">
+                High priority
+            </option>
+
+            <option value="today">
+                Due today
+            </option>
+
+        </select>
+
+    </div>
+
+    <div id="taskList" class="task-list">
+    </div>
+
+</section>
+
+<section class="panel">
+
+    <div class="panel-heading">
+
+        <div>
+
+            <span class="section-kicker">
+                DEADLINES
+            </span>
+
+            <h2>
+                Coming Up
+            </h2>
+
+        </div>
+
+    </div>
+
+    <div id="deadlineList" class="deadline-list">
+    </div>
+
+</section>
+
+</div>
+
+</section>
+
+<!-- =====================================================
+     MY TASKS
+===================================================== -->
+
+<section id="tasksSection" class="hidden">
+
+<div class="panel">
+
+    <div class="panel-heading">
+
+        <div>
+
+            <span class="section-kicker">
+                TASK MANAGEMENT
+            </span>
+
+            <h2>
+                My Tasks
+            </h2>
+
+        </div>
+
+        <div class="task-tools">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search tasks..."
+            >
+
+            <select id="statusFilter">
+
+                <option value="all">
+                    All
+                </option>
+
+                <option value="todo">
+                    To Do
+                </option>
+
+                <option value="progress">
+                    In Progress
+                </option>
+
+                <option value="completed">
+                    Completed
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <div id="allTasksList" class="task-list">
+    </div>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<!-- =====================================================
+     ADD TASK MODAL
+===================================================== -->
+
+<div class="modal-overlay" id="modalOverlay">
+
+<div class="modal">
+
+    <div class="modal-header">
+
+        <div>
+
+            <span class="section-kicker">
+                NEW TASK
+            </span>
+
+            <h2>
+                Add Academic Task
+            </h2>
+
+        </div>
+
+        <button
+            class="close-btn"
+            id="closeModal">
+            ×
+        </button>
+
+    </div>
+
+
+    <form id="taskForm">
+
+
+        <div class="form-group">
+
+            <label>
+                Task name
+            </label>
+
+            <input
+                type="text"
+                id="taskName"
+                placeholder="e.g. Digital Logic Assignment"
+                required
+            >
+
+        </div>
+
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label>
+                    Subject
+                </label>
+
+                <input
+                    type="text"
+                    id="taskSubject"
+                    placeholder="e.g. DLD"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Task type
+                </label>
+
+                <select id="taskType">
+
+                    <option>Assignment</option>
+                    <option>Lab Record</option>
+                    <option>Project</option>
+                    <option>Quiz</option>
+                    <option>Exam</option>
+                    <option>Presentation</option>
+                    <option>Other</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label>
+                    Deadline
+                </label>
+
+                <input
+                    type="date"
+                    id="taskDeadline"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Estimated effort
+                </label>
+
+                <select id="taskEffort">
+
+                    <option value="1">
+                        1 hour
+                    </option>
+
+                    <option value="2">
+                        2 hours
+                    </option>
+
+                    <option value="3">
+                        3 hours
+                    </option>
+
+                    <option value="4">
+                        4 hours
+                    </option>
+
+                    <option value="5">
+                        5+ hours
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Priority
+            </label>
+
+            <div class="priority-options">
+
+
+                <label class="priority-option">
+
+                    <input
+                        type="radio"
+                        name="priority"
+                        value="high"
+                        checked
+                    >
+
+                    <span class="priority-dot high-dot"></span>
+
+                    High
+
+                </label>
+
+
+                <label class="priority-option">
+
+                    <input
+                        type="radio"
+                        name="priority"
+                        value="medium"
+                    >
+
+                    <span class="priority-dot medium-dot"></span>
+
+                    Medium
+
+                </label>
+
+
+                <label class="priority-option">
+
+                    <input
+                        type="radio"
+                        name="priority"
+                        value="low"
+                    >
+
+                    <span class="priority-dot low-dot"></span>
+
+                    Low
+
+                </label>
+
+
+            </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="button"
+                class="secondary-btn"
+                id="cancelModal">
+
+                Cancel
+
+            </button>
+
+
+            <button
+                type="submit"
+                class="primary-btn">
+
+                Add Task
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   DEADLINE DRIFT APPLICATION
+========================================================= */
+
+const STORAGE_KEY = "deadlineDriftTasks";
+
+
+/* =========================================================
+   SAMPLE DATA
+========================================================= */
+
+const sampleTasks = [
+
+    {
+        id: 1,
+        name: "Digital Logic Assignment",
+        subject: "DLD",
+        type: "Assignment",
+        deadline: getDateOffset(0),
+        effort: 2,
+        priority: "high",
+        status: "todo"
+    },
+
+    {
+        id: 2,
+        name: "Java Lab Record",
+        subject: "Java",
+        type: "Lab Record",
+        deadline: getDateOffset(1),
+        effort: 3,
+        priority: "high",
+        status: "progress"
+    },
+
+    {
+        id: 3,
+        name: "IoT Project Documentation",
+        subject: "IoT",
+        type: "Project",
+        deadline: getDateOffset(3),
+        effort: 4,
+        priority: "medium",
+        status: "todo"
+    },
+
+    {
+        id: 4,
+        name: "Mathematics Quiz Preparation",
+        subject: "Mathematics",
+        type: "Quiz",
+        deadline: getDateOffset(5),
+        effort: 2,
+        priority: "medium",
+        status: "todo"
+    }
+
+];
+
+
+let tasks =
+    JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+
+if (
+    !tasks ||
+    !Array.isArray(tasks) ||
+    tasks.length === 0
+) {
+
+    tasks = sampleTasks;
+
+    saveTasks();
+
+}
+
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+function getDateOffset(days) {
+
+    const date = new Date();
+
+    date.setDate(
+        date.getDate() + days
+    );
+
+    const year =
+        date.getFullYear();
+
+    const month =
+        String(date.getMonth() + 1)
+        .padStart(2, "0");
+
+    const day =
+        String(date.getDate())
+        .padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+
+function saveTasks() {
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(tasks)
+    );
+
+}
+
+
+function parseDate(dateString) {
+
+    return new Date(
+        `${dateString}T23:59:59`
+    );
+
+}
+
+
+function isToday(dateString) {
+
+    return dateString ===
+        getDateOffset(0);
+
+}
+
+
+function daysUntil(dateString) {
+
+    const today = new Date();
+
+    today.setHours(
+        0,
+        0,
+        0,
+        0
+    );
+
+    const deadline =
+        parseDate(dateString);
+
+    deadline.setHours(
+        0,
+        0,
+        0,
+        0
+    );
+
+    return Math.ceil(
+        (deadline - today) /
+        (1000 * 60 * 60 * 24)
+    );
+
+}
+
+
+function formatDate(dateString) {
+
+    return new Date(
+        `${dateString}T12:00:00`
+    ).toLocaleDateString(
+        "en-IN",
+        {
+            day: "numeric",
+            month: "short"
+        }
+    );
+
+}
+
+
+function priorityWeight(priority) {
+
+    return {
+
+        high: 3,
+
+        medium: 2,
+
+        low: 1
+
+    }[priority] || 1;
+
+}
+
+
+function getStatusLabel(status) {
+
+    return {
+
+        todo: "To Do",
+
+        progress: "In Progress",
+
+        completed: "Completed"
+
+    }[status];
+
+}
+
+
+/* =========================================================
+   GREETING
+========================================================= */
+
+function getGreeting() {
+
+    const hour =
+        new Date().getHours();
+
+    if (hour < 12) {
+
+        return "Good morning";
+
+    }
+
+    if (hour < 17) {
+
+        return "Good afternoon";
+
+    }
+
+    return "Good evening";
+
+}
+
+
+function updateGreeting() {
+
+    document
+        .getElementById("pageTitle")
+        .textContent =
+        getGreeting();
+
+}
+
+
+/* =========================================================
+   DASHBOARD STATS
+========================================================= */
+
+function updateStats() {
+
+    const activeTasks =
+        tasks.filter(
+            t => t.status !== "completed"
+        );
+
+
+    const today =
+        activeTasks.filter(
+            t => isToday(t.deadline)
+        ).length;
+
+
+    const upcoming =
+        activeTasks.filter(t => {
+
+            const days =
+                daysUntil(t.deadline);
+
+            return (
+                days >= 0 &&
+                days <= 7
+            );
+
+        }).length;
+
+
+    const completed =
+        tasks.filter(
+            t => t.status === "completed"
+        ).length;
+
+
+    const progress =
+        tasks.length
+            ? Math.round(
+                (completed / tasks.length) * 100
+            )
+            : 0;
+
+
+    document
+        .getElementById("todayCount")
+        .textContent = today;
+
+
+    document
+        .getElementById("upcomingCount")
+        .textContent = upcoming;
+
+
+    document
+        .getElementById("completedCount")
+        .textContent = completed;
+
+
+    document
+        .getElementById("progressValue")
+        .textContent = `${progress}%`;
+
+
+    document
+        .getElementById("progressFill")
+        .style.width = `${progress}%`;
+
+}
+
+
+/* =========================================================
+   SMART PRIORITY
+========================================================= */
+
+function calculateScore(task) {
+
+    const days =
+        daysUntil(task.deadline);
+
+    let urgency;
+
+
+    if (days < 0) {
+
+        urgency = 10;
+
+    } else if (days === 0) {
+
+        urgency = 9;
+
+    } else if (days === 1) {
+
+        urgency = 7;
+
+    } else if (days <= 3) {
+
+        urgency = 5;
+
+    } else if (days <= 7) {
+
+        urgency = 3;
+
+    } else {
+
+        urgency = 1;
+
+    }
+
+
+    const priority =
+        priorityWeight(
+            task.priority
+        ) * 2;
+
+
+    const effort =
+        Math.min(
+            task.effort,
+            5
+        );
+
+
+    return (
+        urgency +
+        priority +
+        effort
+    );
+
+}
+
+
+function getRecommendation() {
+
+    const activeTasks =
+        tasks.filter(
+            task =>
+                task.status !==
+                "completed"
+        );
+
+
+    if (
+        activeTasks.length === 0
+    ) {
+
+        return null;
+
+    }
+
+
+    return [...activeTasks]
+        .sort(
+            (a, b) =>
+                calculateScore(b) -
+                calculateScore(a)
+        )[0];
+
+}
+
+
+function renderRecommendation() {
+
+    const container =
+        document.getElementById(
+            "recommendationContent"
+        );
+
+
+    const task =
+        getRecommendation();
+
+
+    if (!task) {
+
+        container.innerHTML = `
+            <div class="empty-recommendation">
+                All tasks are completed. Great work.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    const days =
+        daysUntil(
+            task.deadline
+        );
+
+
+    let deadlineText;
+
+
+    if (days < 0) {
+
+        deadlineText =
+            "Overdue";
+
+    } else if (days === 0) {
+
+        deadlineText =
+            "Due today";
+
+    } else if (days === 1) {
+
+        deadlineText =
+            "Due tomorrow";
+
+    } else {
+
+        deadlineText =
+            `Due in ${days} days`;
+
+    }
+
+
+    container.innerHTML = `
+
+        <div class="recommended-task">
+
+            <div>
+
+                <div class="recommended-title">
+
+                    ${escapeHTML(task.name)}
+
+                </div>
+
+                <div class="recommended-meta">
+
+                    ${escapeHTML(task.subject)}
+                    &bull; ${deadlineText}
+                    &bull; ${task.effort} hr${task.effort > 1 ? "s" : ""}
+                    &bull; ${task.priority} priority
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="start-btn"
+                onclick="startRecommendedTask(${task.id})">
+
+                ${
+                    task.status === "progress"
+                    ? "CONTINUE TASK"
+                    : "START TASK"
+                }
+
+            </button>
+
+        </div>
+
+    `;
+
+}
+
+
+function startRecommendedTask(id) {
+
+    const task =
+        tasks.find(
+            t => t.id === id
+        );
+
+
+    if (!task) return;
+
+
+    if (
+        task.status === "todo"
+    ) {
+
+        task.status =
+            "progress";
+
+        saveTasks();
+
+        renderAll();
+
+    }
+
+
+    showNotification(
+        "Task marked as In Progress."
+    );
+
+}
+
+
+/* =========================================================
+   TASK CARDS
+========================================================= */
+
+function renderTaskCard(task) {
+
+    const completed =
+        task.status === "completed";
+
+
+    return `
+
+        <div class="task-card">
+
+            <div class="task-main">
+
+                <button
+                    class="task-check ${completed ? "done" : ""}"
+                    onclick="toggleTask(${task.id})">
+
+                    ${completed ? "&#10003;" : ""}
+
+                </button>
+
+
+                <div>
+
+                    <div class="task-title ${completed ? "completed" : ""}">
+
+                        ${escapeHTML(task.name)}
+
+                    </div>
+
+
+                    <div class="task-meta">
+
+                        ${escapeHTML(task.subject)}
+                        &bull; ${escapeHTML(task.type)}
+                        &bull; ${formatDate(task.deadline)}
+                        &bull; ${task.effort} hr${task.effort > 1 ? "s" : ""}
+                        &bull; ${getStatusLabel(task.status)}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="task-right">
+
+                <span
+                    class="priority-badge priority-${task.priority}">
+
+                    ${task.priority}
+
+                </span>
+
+
+                <button
+                    class="delete-btn"
+                    onclick="deleteTask(${task.id})">
+
+                    &times;
+
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   DASHBOARD TASKS
+========================================================= */
+
+function renderTasks() {
+
+    const filter =
+        document.getElementById(
+            "dashboardFilter"
+        ).value;
+
+
+    let filtered =
+        tasks.filter(
+            task =>
+                task.status !==
+                "completed"
+        );
+
+
+    if (filter === "high") {
+
+        filtered =
+            filtered.filter(
+                task =>
+                    task.priority ===
+                    "high"
+            );
+
+    }
+
+
+    if (filter === "today") {
+
+        filtered =
+            filtered.filter(
+                task =>
+                    isToday(
+                        task.deadline
+                    )
+            );
+
+    }
+
+
+    filtered.sort(
+        (a, b) =>
+            parseDate(a.deadline) -
+            parseDate(b.deadline)
+    );
+
+
+    const container =
+        document.getElementById(
+            "taskList"
+        );
+
+
+    if (
+        filtered.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                No tasks match this filter.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        filtered
+            .map(renderTaskCard)
+            .join("");
+
+}
+
+
+/* =========================================================
+   ALL TASKS
+========================================================= */
+
+function renderAllTasks() {
+
+    const search =
+        document
+            .getElementById(
+                "searchInput"
+            )
+            .value
+            .toLowerCase()
+            .trim();
+
+
+    const status =
+        document
+            .getElementById(
+                "statusFilter"
+            )
+            .value;
+
+
+    let filtered =
+        [...tasks];
+
+
+    if (search) {
+
+        filtered =
+            filtered.filter(task =>
+
+                task.name
+                    .toLowerCase()
+                    .includes(search)
+
+                ||
+
+                task.subject
+                    .toLowerCase()
+                    .includes(search)
+
+            );
+
+    }
+
+
+    if (status !== "all") {
+
+        filtered =
+            filtered.filter(
+                task =>
+                    task.status ===
+                    status
+            );
+
+    }
+
+
+    filtered.sort(
+        (a, b) =>
+            parseDate(a.deadline) -
+            parseDate(b.deadline)
+    );
+
+
+    const container =
+        document.getElementById(
+            "allTasksList"
+        );
+
+
+    if (
+        filtered.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                No tasks found.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        filtered
+            .map(renderTaskCard)
+            .join("");
+
+}
+
+
+/* =========================================================
+   DEADLINES
+========================================================= */
+
+function renderDeadlines() {
+
+    const activeTasks =
+        tasks
+            .filter(
+                t =>
+                    t.status !==
+                    "completed"
+            )
+            .sort(
+                (a, b) =>
+                    parseDate(a.deadline) -
+                    parseDate(b.deadline)
+            )
+            .slice(0, 5);
+
+
+    const container =
+        document.getElementById(
+            "deadlineList"
+        );
+
+
+    if (
+        activeTasks.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                No upcoming deadlines.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        activeTasks
+            .map(task => {
+
+                const date =
+                    new Date(
+                        `${task.deadline}T12:00:00`
+                    );
+
+
+                const day =
+                    date.getDate();
+
+
+                const month =
+                    date
+                        .toLocaleDateString(
+                            "en-IN",
+                            {
+                                month: "short"
+                            }
+                        )
+                        .toUpperCase();
+
+
+                return `
+
+                    <div class="deadline-item">
+
+                        <div class="date-box">
+
+                            <strong>
+                                ${day}
+                            </strong>
+
+                            <small>
+                                ${month}
+                            </small>
+
+                        </div>
+
+
+                        <div class="deadline-info">
+
+                            <strong>
+
+                                ${escapeHTML(task.name)}
+
+                            </strong>
+
+                            <span>
+
+                                ${escapeHTML(task.subject)}
+                                &bull; ${task.priority} priority
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            })
+            .join("");
+
+}
+
+
+/* =========================================================
+   ADD TASK
+========================================================= */
+
+function addTask(event) {
+
+    event.preventDefault();
+
+
+    const name =
+        document
+            .getElementById(
+                "taskName"
+            )
+            .value
+            .trim();
+
+
+    const subject =
+        document
+            .getElementById(
+                "taskSubject"
+            )
+            .value
+            .trim();
+
+
+    const type =
+        document
+            .getElementById(
+                "taskType"
+            )
+            .value;
+
+
+    const deadline =
+        document
+            .getElementById(
+                "taskDeadline"
+            )
+            .value;
+
+
+    const effort =
+        Number(
+            document
+                .getElementById(
+                    "taskEffort"
+                )
+                .value
+        );
+
+
+    const priority =
+        document
+            .querySelector(
+                'input[name="priority"]:checked'
+            )
+            .value;
+
+
+    if (
+        !name ||
+        !subject ||
+        !deadline
+    ) {
+
+        return;
+
+    }
+
+
+    tasks.push({
+
+        id: Date.now(),
+
+        name,
+
+        subject,
+
+        type,
+
+        deadline,
+
+        effort,
+
+        priority,
+
+        status: "todo"
+
+    });
+
+
+    saveTasks();
+
+
+    document
+        .getElementById(
+            "taskForm"
+        )
+        .reset();
+
+
+    closeModal();
+
+
+    renderAll();
+
+
+    showNotification(
+        "Task added successfully."
+    );
+
+}
+
+
+/* =========================================================
+   TASK ACTIONS
+========================================================= */
+
+function toggleTask(id) {
+
+    const task =
+        tasks.find(
+            t => t.id === id
+        );
+
+
+    if (!task) return;
+
+
+    if (
+        task.status ===
+        "completed"
+    ) {
+
+        task.status = "todo";
+
+    } else {
+
+        task.status =
+            "completed";
+
+    }
+
+
+    saveTasks();
+
+    renderAll();
+
+}
+
+
+function deleteTask(id) {
+
+    const task =
+        tasks.find(
+            t => t.id === id
+        );
+
+
+    if (!task) return;
+
+
+    tasks =
+        tasks.filter(
+            t => t.id !== id
+        );
+
+
+    saveTasks();
+
+    renderAll();
+
+
+    showNotification(
+        "Task removed."
+    );
+
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+const modalOverlay =
+    document.getElementById(
+        "modalOverlay"
+    );
+
+
+function openModal() {
+
+    modalOverlay
+        .classList
+        .add("show");
+
+
+    document
+        .getElementById(
+            "taskName"
+        )
+        .focus();
+
+
+    document
+        .getElementById(
+            "taskDeadline"
+        )
+        .min =
+        getDateOffset(0);
+
+}
+
+
+function closeModal() {
+
+    modalOverlay
+        .classList
+        .remove("show");
+
+}
+
+
+document
+    .getElementById(
+        "openModal"
+    )
+    .addEventListener(
+        "click",
+        openModal
+    );
+
+
+document
+    .getElementById(
+        "closeModal"
+    )
+    .addEventListener(
+        "click",
+        closeModal
+    );
+
+
+document
+    .getElementById(
+        "cancelModal"
+    )
+    .addEventListener(
+        "click",
+        closeModal
+    );
+
+
+modalOverlay
+    .addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target ===
+                modalOverlay
+            ) {
+
+                closeModal();
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+document
+    .querySelectorAll(
+        ".nav-item"
+    )
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                document
+                    .querySelectorAll(
+                        ".nav-item"
+                    )
+                    .forEach(item =>
+                        item.classList
+                            .remove("active")
+                    );
+
+
+                button.classList
+                    .add("active");
+
+
+                const section =
+                    button.dataset.section;
+
+
+                document
+                    .getElementById(
+                        "dashboardSection"
+                    )
+                    .classList
+                    .toggle(
+                        "hidden",
+                        section !==
+                        "dashboard"
+                    );
+
+
+                document
+                    .getElementById(
+                        "tasksSection"
+                    )
+                    .classList
+                    .toggle(
+                        "hidden",
+                        section !==
+                        "tasks"
+                    );
+
+
+                document
+                    .getElementById(
+                        "pageTitle"
+                    )
+                    .textContent =
+
+                    section ===
+                    "dashboard"
+
+                    ? getGreeting()
+
+                    : "My Tasks";
+
+            }
+
+        );
+
+    });
+
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+document
+    .getElementById(
+        "dashboardFilter"
+    )
+    .addEventListener(
+        "change",
+        renderTasks
+    );
+
+
+document
+    .getElementById(
+        "statusFilter"
+    )
+    .addEventListener(
+        "change",
+        renderAllTasks
+    );
+
+
+document
+    .getElementById(
+        "searchInput"
+    )
+    .addEventListener(
+        "input",
+        renderAllTasks
+    );
+
+
+document
+    .getElementById(
+        "taskForm"
+    )
+    .addEventListener(
+        "submit",
+        addTask
+    );
+
+
+/* =========================================================
+   NOTIFICATION
+========================================================= */
+
+function showNotification(message) {
+
+    const notification =
+        document.createElement(
+            "div"
+        );
+
+
+    notification.textContent =
+        message;
+
+
+    Object.assign(
+        notification.style,
+        {
+
+            position: "fixed",
+
+            bottom: "25px",
+
+            right: "25px",
+
+            background: "#191a25",
+
+            color: "white",
+
+            padding: "12px 17px",
+
+            borderRadius: "9px",
+
+            fontSize: "11px",
+
+            zIndex: "999",
+
+            boxShadow:
+                "0 10px 30px rgba(0,0,0,.15)"
+
+        }
+    );
+
+
+    document.body.appendChild(
+        notification
+    );
+
+
+    setTimeout(
+        () => notification.remove(),
+        2200
+    );
+
+}
+
+
+/* =========================================================
+   SECURITY
+========================================================= */
+
+function escapeHTML(value) {
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+function renderAll() {
+
+    updateStats();
+
+    renderRecommendation();
+
+    renderTasks();
+
+    renderDeadlines();
+
+    renderAllTasks();
+
+}
+
+
+updateGreeting();
+
+renderAll();
+
+</script>
+
+</body>
+</html>
