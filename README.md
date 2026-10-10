@@ -1,291 +1,230 @@
-# Coe-Project
+[README.md](https://github.com/user-attachments/files/33281972/README.md)
 # Deadline Drift — Academic Planner
 
-### Project Better Tomorrow
+Deadline Drift is a student-focused academic planning web application. It helps students record coursework, track deadlines, review progress, and decide which unfinished task to work on next. This project is a prototype built with HTML, CSS, JavaScript, PHP, and MySQL.
 
-A simple web-based academic planner designed to help college students organize deadlines, manage academic tasks, and identify what they should work on first.
+> **Project status:** The modular frontend is implemented and has been opened successfully in the local XAMPP environment. Core task operations were confirmed during earlier testing. A full regression pass after every recent change and structured testing with at least three students are still pending. This README does not claim those activities are complete.
 
----
+## Features
 
-## Overview
+- **Account access:** Register, log in, check the session, and log out using PHP sessions.
+- **Task management:** Add, view, edit, update status, and delete academic tasks.
+- **Task details:** Task name, subject, type, deadline, estimated effort, priority, status, and notes.
+- **Dashboard:** Due-today and upcoming counts, completion progress, and a Smart Priority recommendation.
+- **Smart Priority explanation:** Displays the recommendation score and the points contributed by urgency, priority, and effort.
+- **Calendar:** View tasks by deadline and navigate between months.
+- **Analytics:** Review completion and workload summaries.
+- **Focus Mode:** Use a focus timer and choose an active task.
+- **Deadline reminders:** In-app reminders and optional browser notifications, subject to browser permission and session availability.
+- **Settings:** Appearance and task-display preferences.
+- **CSV export:** Export task data, including notes, for personal review.
+- **Responsive interface:** Layout designed for desktop and smaller screens.
 
-College students often manage multiple assignments, projects, laboratory work, tests, presentations, and submissions at the same time.
+## Technology stack
 
-Deadline Drift provides a centralized dashboard where students can record their academic tasks, track deadlines, monitor progress, and prioritize their workload.
+| Layer | Technology |
+|---|---|
+| Frontend structure | HTML5 |
+| Styling | CSS3 |
+| Frontend logic | Vanilla JavaScript |
+| Server-side API | PHP |
+| Database | MySQL / MariaDB |
+| Local development environment | XAMPP (Apache and MySQL) |
+| Browser-to-server communication | `fetch()` requests with JSON |
+| Authentication | PHP sessions and password hashing in the PHP backend |
 
-The project was developed as part of the **Project Better Tomorrow** Design Thinking activity.
+No JavaScript framework or package manager is required for the current frontend.
 
----
-
-## Problem Statement
-
-Students may struggle to manage multiple academic responsibilities when deadlines and task information are distributed across different sources.
-
-This can make it difficult to determine:
-
-* Which task needs immediate attention
-* Which deadline is approaching
-* How much work remains
-* Which task should be completed first
-
-### Defined Problem
-
-> **Students need a simple way to centralize academic deadlines and prioritize their workload so that important tasks are less likely to be forgotten or delayed.**
-
----
-
-## Solution
-
-**Deadline Drift** provides a single academic task-management dashboard.
-
-Students can:
-
-* Add academic tasks
-* Set deadlines
-* Select subjects
-* Set task priority
-* Estimate required effort
-* Track task status
-* Search and filter tasks
-* Monitor overall progress
-* View upcoming deadlines
-* Receive a Smart Priority recommendation
-
----
-
-## Key Feature — Smart Priority
-
-The Smart Priority system recommends which task should receive attention first.
-
-The recommendation considers:
-
-**Deadline + Priority + Estimated Effort**
-
-Tasks with greater urgency and importance receive a higher priority score.
-
-The feature is intentionally rule-based so that the recommendation remains simple and understandable.
-
----
-
-## Design Thinking Process
-
-### 1. Empathize
-
-The initial problem exploration focused on difficulties students may experience when managing multiple academic responsibilities.
-
-Secondary research was also considered to understand the broader problem of fragmented academic information and deadline management.
-
-### 2. Define
-
-The problem was narrowed to:
-
-> Students need a simple way to centralize academic deadlines and prioritize their workload.
-
-### 3. Ideate
-
-Multiple solutions were considered:
-
-* Academic calendar
-* Reminder application
-* Assignment tracker
-* Study planner
-* Academic dashboard
-* Smart task prioritization system
-
-The academic dashboard with smart prioritization was selected.
-
-### 4. Prototype
-
-A functional web prototype was developed using HTML, CSS, and JavaScript.
-
-The prototype uses browser Local Storage, allowing tasks to remain available when the page is reopened in the same browser.
-
-### 5. Validate
-
-The prototype is intended to be tested with real college students.
-
-Testing focuses on:
-
-* Ease of adding tasks
-* Deadline visibility
-* Understanding of priorities
-* Usefulness of Smart Priority
-* Overall dashboard usability
-
-Actual tester feedback will be documented after testing.
-
----
-
-## Technology Stack
-
-| Technology    | Purpose                            |
-| ------------- | ---------------------------------- |
-| HTML          | Page structure                     |
-| CSS           | UI design and responsive layout    |
-| JavaScript    | Application logic and interactions |
-| Local Storage | Browser-based task persistence     |
-| GitHub Pages  | Website hosting                    |
-
-No backend server or database is required for the current prototype.
-
----
-
-## Project Structure
+## Project structure
 
 ```text
-project-better-tomorrow/
-│
+deadline-drift/
 ├── index.html
-└── README.md
+├── css/
+│   └── style.css
+├── js/
+│   ├── core.js
+│   ├── app.js
+│   ├── models/
+│   │   └── task-utils.js
+│   └── modules/
+│       ├── dashboard.js
+│       ├── tasks.js
+│       ├── analytics.js
+│       ├── calendar.js
+│       ├── focus-mode.js
+│       └── notifications-settings.js
+├── api/                          # Keep in the local XAMPP project
+│   ├── db.php
+│   ├── register.php
+│   ├── login.php
+│   ├── me.php
+│   ├── logout.php
+│   └── tasks.php
+└── docs/
+    ├── smart-priority.md
+    ├── testing-checklist.md
+    ├── student-validation-form.md
+    └── review2-validation-status.md
 ```
 
-The entire application is contained in a single `index.html` file.
+**Important:** The modular ZIP contains the frontend and documentation. It does not replace the PHP API folder. Keep the existing working `api` folder in your XAMPP project when installing the frontend update.
 
----
+### Main JavaScript responsibilities
 
-## How to Run Locally
+- `core.js`: Authentication/session handling, loading tasks, and API updates.
+- `models/task-utils.js`: Reusable task, date, status, and priority helpers.
+- `modules/dashboard.js`: Dashboard counters and Smart Priority recommendation.
+- `modules/tasks.js`: Task list, form, edit, delete, and task status interactions.
+- `modules/analytics.js`: Progress and workload summaries.
+- `modules/calendar.js`: Calendar rendering and date navigation.
+- `modules/focus-mode.js`: Focus timer and task selection.
+- `modules/notifications-settings.js`: Navigation, reminders, and user preferences.
+- `app.js`: Shared rendering, CSV export, event wiring, and application startup.
 
-### Option 1 — Directly Open
+The files currently load as classic scripts in a defined order to remain compatible with the prototype's shared functions.
 
-Download or clone the repository and open:
+## Requirements
+
+- Windows with XAMPP installed, or an equivalent environment with Apache, PHP, and MySQL/MariaDB.
+- A modern browser such as Chrome, Edge, or Firefox.
+- The project database and the PHP API files listed above.
+
+## Installation with XAMPP
+
+1. Start **Apache** and **MySQL** in the XAMPP Control Panel.
+2. Back up the existing folder `C:\xampp\htdocs\deadline-drift` before replacing files.
+3. Extract the modular ZIP.
+4. Copy `index.html`, `css/`, `js/`, and `docs/` into `C:\xampp\htdocs\deadline-drift\`. Replace `index.html` and merge the folders if Windows asks.
+5. **Keep the existing `api/` folder and PHP files.** If setting up from scratch, create the required PHP API files and configure `api/db.php` for your local database first.
+6. Make sure the database is named `deadline_drift` and contains the `users` and `tasks` tables described below. If the existing database already has the columns, do not run duplicate `ALTER TABLE` commands.
+7. Open `http://localhost/deadline-drift/` in a browser. Do not open `index.html` directly with `file:///`, because the PHP API requires an HTTP server.
+8. Register an account, sign in, and test the features using `docs/testing-checklist.md`.
+
+### PHP API endpoints expected by the frontend
+
+| Endpoint | Purpose |
+|---|---|
+| `api/db.php` | Connects to the `deadline_drift` database |
+| `api/register.php` | Creates an account |
+| `api/login.php` | Starts a user session |
+| `api/me.php` | Reports the current session state |
+| `api/logout.php` | Ends the user session |
+| `api/tasks.php` | Reads and changes the signed-in user's tasks |
+
+The frontend makes same-origin requests to these endpoints. The task API should enforce authentication and restrict each read/write operation to the currently signed-in user's records.
+
+## Database setup
+
+The PHP backend expects a database named `deadline_drift`. For a fresh database, create the account table first, followed by the task table:
+
+```sql
+CREATE DATABASE IF NOT EXISTS deadline_drift;
+USE deadline_drift;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    subject VARCHAR(100) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    deadline DATE NOT NULL,
+    effort INT NOT NULL DEFAULT 1,
+    priority ENUM('high', 'medium', 'low') NOT NULL DEFAULT 'medium',
+    status ENUM('todo', 'progress', 'completed') NOT NULL DEFAULT 'todo',
+    notes TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_tasks_user_deadline (user_id, deadline),
+    CONSTRAINT fk_tasks_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE
+);
+```
+
+### If you already have the database
+
+Do **not** drop or recreate existing tables. In phpMyAdmin, open `deadline_drift` and inspect the `users` and `tasks` columns. The current authenticated task API uses `tasks.user_id` and `tasks.notes`. If either column is missing, run only the migration for the missing column:
+
+```sql
+ALTER TABLE tasks ADD COLUMN user_id INT NULL AFTER id;
+ALTER TABLE tasks ADD COLUMN notes TEXT NULL AFTER status;
+```
+
+The two statements above are separate migrations; skip any statement whose column already exists. Tasks created before user accounts were added may have `user_id = NULL`. Such records are not automatically assigned to a signed-in account. Only assign records to an account deliberately if they belong to that user.
+
+Configure the database host, username, password, and database name in `api/db.php` for your local XAMPP setup. Do not commit real credentials to a public repository.
+
+## Smart Priority logic
+
+Smart Priority is a transparent, rule-based heuristic. It is **not** a trained AI or machine-learning model.
 
 ```text
-index.html
+Task Score = Urgency Score + (Priority Weight × 2) + Effort Contribution
+Effort Contribution = min(max(Estimated Effort Hours, 0), 5)
 ```
 
-in a web browser.
+### Deadline urgency
 
-### Option 2 — GitHub Pages
+| Deadline | Points |
+|---|---:|
+| Overdue | 10 |
+| Due today | 9 |
+| Due tomorrow | 7 |
+| Due in 2–3 days | 5 |
+| Due in 4–7 days | 3 |
+| Due in more than 7 days | 1 |
 
-The project can be hosted using GitHub Pages.
+### Priority and effort
 
-Live Demo:
+| Selected priority | Weight | Points added |
+|---|---:|---:|
+| High | 3 | 6 |
+| Medium | 2 | 4 |
+| Low | 1 | 2 |
 
-```text
-https://YOUR-GITHUB-USERNAME.github.io/project-better-tomorrow/
-```
+Estimated effort adds one point per estimated hour, capped at five points. For example, a task due today with High priority and an estimated effort of 3 hours scores `9 + (3 × 2) + 3 = 18`.
 
----
+Completed tasks are excluded. The highest-scoring unfinished task is recommended. If scores tie, the earlier deadline wins; if both score and deadline are equal, the current task-list order is retained.
 
-## How to Use
+These weights are initial design assumptions, not experimentally established values. A long task can receive more points because of its effort estimate; user testing should determine whether that behavior is useful. See `docs/smart-priority.md` for test cases and rationale.
 
-### Add a Task
+## Testing and validation
 
-1. Open the dashboard.
-2. Click **Add Academic Task**.
-3. Enter the task name.
-4. Select the subject.
-5. Choose the task type.
-6. Set the deadline.
-7. Select estimated effort.
-8. Choose priority.
-9. Save the task.
+Use `docs/testing-checklist.md` to record the result of each check, any issue found, and evidence such as a screenshot. Test task creation, persistence after refresh, editing, status updates, deletion, calendar, analytics, Focus Mode, reminders, settings, CSV export, and login/logout.
 
-### Manage a Task
+Structured usability testing with at least three student participants has **not yet been documented as complete**. `docs/student-validation-form.md` is a blank template for recording genuine, anonymized responses. Do not present invented ratings or comments as test results. Update `docs/review2-validation-status.md` only when new checks or participant sessions have actually occurred.
 
-Tasks can be moved between:
+## Known limitations
 
-```text
-To Do
-   ↓
-In Progress
-   ↓
-Completed
-```
+- This is a local academic prototype, not a production-hosted service.
+- The Smart Priority weights have not yet been validated through structured student testing.
+- Browser notifications depend on permission and browser behavior; reminders need the application to be open and active for its periodic checks.
+- Appearance and display preferences are stored in the browser, while tasks and accounts are stored through the PHP/MySQL backend.
+- A complete regression test across every feature after all modular changes remains to be recorded.
 
-### Smart Priority
+## Future improvements
 
-Open the Smart Priority section to see which task the system recommends working on first.
+- Conduct and document usability testing with students, then refine the recommendation logic using evidence.
+- Add automated regression tests for task operations and scoring.
+- Consider converting the classic scripts to ES modules after confirming compatibility.
+- Improve accessibility, form validation, and deployment configuration.
+- Deploy the PHP/MySQL backend to a suitable host if online access is required; GitHub Pages alone cannot run PHP.
 
----
+## Documentation
 
-## AI Interaction
-
-AI was used as a **divergence and development partner** during the project.
-
-AI assistance was used for:
-
-* Exploring possible student problems
-* Generating alternative solution ideas
-* Feature ideation
-* UI/UX brainstorming
-* Prioritization logic
-* Prototype development
-* Refining the project structure
-
-AI suggestions were evaluated before being incorporated into the project.
-
-Ideas that were unnecessarily complex or outside the project's core scope were rejected.
-
----
-
-## Validation
-
-The prototype should be evaluated with at least three real student testers.
-
-Suggested testing tasks:
-
-1. Create an assignment.
-2. Set a deadline.
-3. Set its priority.
-4. Add another academic task.
-5. View upcoming deadlines.
-6. Check Smart Priority.
-7. Mark a task as completed.
-
-### Feedback Questions
-
-* Was the dashboard easy to understand?
-* Was adding a task easy?
-* Was the Smart Priority recommendation useful?
-* Was anything difficult to find?
-* Which feature was most useful?
-* What should be improved?
-
-**Note:** Tester feedback should only be added after conducting actual testing.
-
----
-
-## Current Limitations
-
-The current prototype:
-
-* Stores data locally in the browser
-* Does not have user accounts
-* Does not synchronize data between devices
-* Does not connect to university LMS platforms
-* Does not provide server-side notifications
-* Does not automatically import academic deadlines
-
----
-
-## Future Improvements
-
-Possible future versions could include:
-
-* User authentication
-* Cloud database
-* Mobile application
-* Push notifications
-* Google Calendar integration
-* University LMS integration
-* Automatic deadline extraction
-* Weekly workload analysis
-* AI-assisted study planning
-* Multi-device synchronization
-
----
-
-## Project Goal
-
-The goal of Deadline Drift is not to replace existing academic systems.
-
-Instead, it provides a **simple personal planning layer** that helps students answer one important question:
-
-> **"What should I work on right now?"**
-
----
+- [`docs/smart-priority.md`](docs/smart-priority.md) — scoring rule, rationale, examples, and test plan.
+- [`docs/testing-checklist.md`](docs/testing-checklist.md) — manual feature test checklist.
+- [`docs/student-validation-form.md`](docs/student-validation-form.md) — form for recording genuine student feedback.
+- [`docs/review2-validation-status.md`](docs/review2-validation-status.md) — current implementation and validation status.
 
 ## License
 
-This project was developed for educational purposes as part of the **Project Better Tomorrow** Design Thinking activity.
+No license has been specified for this prototype. Add a license file if you intend to distribute or reuse the project publicly.
