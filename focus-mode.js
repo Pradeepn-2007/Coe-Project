@@ -1,0 +1,11 @@
+/* =========================================================
+   FOCUS MODE
+========================================================= */
+function formatFocusTime(seconds){const m=Math.floor(seconds/60).toString().padStart(2,"0");const s=(seconds%60).toString().padStart(2,"0");return `${m}:${s}`;}
+function updateFocusTimer(){const el=document.getElementById("focusTimer");if(el)el.textContent=formatFocusTime(focusSeconds);}
+function renderFocusTasks(){const c=document.getElementById("focusTaskList");if(!c)return;const active=tasks.filter(t=>t.status!=="completed").sort((a,b)=>calculateScore(b)-calculateScore(a));if(!active.length){c.innerHTML='<div class="focus-empty">No active tasks. Add a task to start a focus session.</div>';return;}if(selectedFocusTaskId==null||!active.some(t=>Number(t.id)===Number(selectedFocusTaskId)))selectedFocusTaskId=Number(active[0].id);c.innerHTML=active.map(task=>`<button class="focus-task-option ${Number(task.id)===Number(selectedFocusTaskId)?"focus-selected":""}" onclick="selectFocusTask(${task.id})"><strong>${escapeHTML(task.name)}</strong><span>${escapeHTML(task.subject)} &bull; ${formatDate(task.deadline)} &bull; ${task.priority} priority</span></button>`).join("");}
+function selectFocusTask(id){selectedFocusTaskId=Number(id);renderFocusTasks();resetFocusTimer();}
+function startFocusTimer(){if(focusInterval)return;const task=tasks.find(t=>Number(t.id)===Number(selectedFocusTaskId));if(!task){showNotification("Select a task first");return;}focusInterval=setInterval(()=>{focusSeconds--;updateFocusTimer();if(focusSeconds<=0){clearInterval(focusInterval);focusInterval=null;focusSeconds=0;updateFocusTimer();showNotification("Focus session complete");document.getElementById("focusTimerLabel").textContent="Session complete";}},1000);document.getElementById("focusTimerLabel").textContent=`Working on: ${task.name}`;}
+function pauseFocusTimer(){if(focusInterval){clearInterval(focusInterval);focusInterval=null;}}
+function resetFocusTimer(){pauseFocusTimer();focusSeconds=25*60;updateFocusTimer();const label=document.getElementById("focusTimerLabel");const task=tasks.find(t=>Number(t.id)===Number(selectedFocusTaskId));if(label)label.textContent=task?`Ready: ${task.name}`:"Focus session";}
+

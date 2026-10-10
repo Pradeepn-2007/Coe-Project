@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Deadline Drift — Academic Planner</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+
+<div id="authScreen" class="auth-screen hidden">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <div class="brand-icon">D</div>
+            <div>
+                <h2>Deadline Drift</h2>
+                <span>Academic Planner</span>
+            </div>
+        </div>
+
+        <div id="loginView">
+            <h1>Welcome back</h1>
+            <p class="auth-subtitle">Sign in to manage your academic tasks.</p>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required placeholder="you@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
+                </div>
+
+                <div id="loginError" class="auth-error"></div>
+
+                <button type="submit" class="primary-btn" style="width:100%;">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="auth-switch">
+                Don't have an account?
+                <button type="button" id="showRegister">Create account</button>
+            </div>
+        </div>
+
+        <div id="registerView" class="hidden">
+            <h1>Create account</h1>
+            <p class="auth-subtitle">Create your personal academic workspace.</p>
+
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="registerName" required placeholder="Your name">
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" required placeholder="you@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="registerPassword" required minlength="6" placeholder="Minimum 6 characters">
+                </div>
+
+                <div id="registerError" class="auth-error"></div>
+
+                <button type="submit" class="primary-btn" style="width:100%;">
+                    Create Account
+                </button>
+            </form>
+
+            <div class="auth-switch">
+                Already have an account?
+                <button type="button" id="showLogin">Sign in</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="appShell" class="app hidden">
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            D
+        </div>
+
+        <div>
+            <h2>Deadline Drift</h2>
+            <span>Academic Planner</span>
+        </div>
+
+    </div>
+
+    <nav>
+
+        <button class="nav-item active" data-section="dashboard">
+            <span>▦</span>
+            Dashboard
+        </button>
+
+        <button class="nav-item" data-section="tasks">
+            <span>✓</span>
+            My Tasks
+        </button>
+
+        <button class="nav-item" data-section="analytics"><span class="nav-icon">📊</span><span>Analytics</span></button>
+
+        <button class="nav-item" data-section="focus"><span>⏱</span>Focus Mode</button>
+            <button class="nav-item" data-section="calendar">
+            <span>▣</span>
+            Calendar
+        </button>
+
+        <button class="nav-item" data-section="settings">
+            <span>⚙</span>
+            Settings
+        </button>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+
+        <div class="mini-profile">
+
+            <div class="avatar" id="profileAvatar">S</div>
+
+            <div>
+                <strong id="profileName">Student</strong>
+                <small id="profileEmail">Academic Workspace</small>
+            </div>
+
+        </div>
+
+        <button class="logout-btn" id="enableRemindersBtn" style="margin-bottom:8px;">🔔 Enable Reminders</button>
+
+        <button class="logout-btn" id="logoutBtn">Log out</button>
+
+    </div>
+
+</aside>
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="main">
+
+<header class="topbar">
+
+    <div>
+
+        <p class="eyebrow">
+            YOUR ACADEMIC WORKSPACE
+        </p>
+
+        <h1 id="pageTitle">
+            Good morning
+        </h1>
+
+    </div>
+
+    <button class="primary-btn" id="openModal">
+        <span>+</span>
+        Add Task
+    </button>
+
+</header>
+
+<!-- =====================================================
+     DASHBOARD
+===================================================== -->
+
+<section id="dashboardSection">
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            Due Today
+        </div>
+
+        <div class="stat-value" id="todayCount">
+            0
+        </div>
+
+        <div class="stat-note">
+            Tasks requiring attention
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            Upcoming
+        </div>
+
+        <div class="stat-value" id="upcomingCount">
+            0
+        </div>
+
+        <div class="stat-note">
+            Next 7 days
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            Completed
+        </div>
+
+        <div class="stat-value" id="completedCount">
+            0
+        </div>
+
+        <div class="stat-note">
+            Tasks finished
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-label">
+            Progress
+        </div>
+
+        <div class="stat-value" id="progressValue">
+            0%
+        </div>
+
+        <div class="progress-track">
+
+            <div
+                class="progress-fill"
+                id="progressFill">
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =====================================================
+     SMART RECOMMENDATION
+===================================================== -->
+
+<section class="recommendation">
+
+    <div class="recommendation-header">
+
+        <div>
+
+            <span class="section-kicker">
+                SMART PRIORITY
+            </span>
+
+            <h2>
+                What should I do now?
+            </h2>
+
+            <p>
+                Based on deadline, priority and estimated effort.
+            </p>
+
+        </div>
+
+        <div class="spark">
+            ✦
+        </div>
+
+    </div>
+
+    <div id="recommendationContent">
+
+        <div class="empty-recommendation">
+            No active tasks. Add a task to get a recommendation.
+        </div>
+
+    </div>
+
+</section>
+
+<!-- =====================================================
+     CONTENT
+===================================================== -->
+
+<div class="content-grid">
+
+<section class="panel">
+
+    <div class="panel-heading">
+
+        <div>
+
+            <span class="section-kicker">
+                YOUR WORKLOAD
+            </span>
+
+            <h2>
+                Upcoming Tasks
+            </h2>
+
+        </div>
+
+        <select id="dashboardFilter">
+
+            <option value="all">
+                All tasks
+            </option>
+
+            <option value="high">
+                High priority
+            </option>
+
+            <option value="today">
+                Due today
+            </option>
+
+        </select>
+
+    </div>
+
+    <div id="taskList" class="task-list">
+    </div>
+
+</section>
+
+<section class="panel">
+
+    <div class="panel-heading">
+
+        <div>
+
+            <span class="section-kicker">
+                DEADLINES
+            </span>
+
+            <h2>
+                Coming Up
+            </h2>
+
+        </div>
+
+    </div>
+
+    <div id="deadlineList" class="deadline-list">
+    </div>
+
+</section>
+
+</div>
+
+</section>
+
+<!-- =====================================================
+     CALENDAR
+===================================================== -->
+
+<section id="analyticsSection" class="hidden">
+
+<div class="panel">
+  <div class="panel-heading">
+    <div><h2>Analytics</h2><p>Understand your academic workload and progress.</p></div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">Completion Rate</div><div class="stat-value" id="analyticsCompletion">0%</div></div>
+    <div class="stat-card"><div class="stat-label">Total Tasks</div><div class="stat-value" id="analyticsTotal">0</div></div>
+    <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" id="analyticsPending">0</div></div>
+    <div class="stat-card"><div class="stat-label">High Priority</div><div class="stat-value" id="analyticsHigh">0</div></div>
+  </div>
+  <div class="dashboard-grid" style="margin-top:20px;">
+    <div class="panel"><div class="panel-heading"><h3>Task Status</h3></div><div id="statusAnalytics"></div></div>
+    <div class="panel"><div class="panel-heading"><h3>Priority Distribution</h3></div><div id="priorityAnalytics"></div></div>
+  </div>
+  <div class="panel" style="margin-top:20px;"><div class="panel-heading"><h3>Subject Workload</h3></div><div id="subjectAnalytics"></div></div>
+</div>
+
+</section>
+
+<section id="focusSection" class="hidden">
+<div class="focus-grid">
+<div class="focus-card">
+<h2>Focus Mode</h2>
+<p class="focus-subtitle">Choose a task and work in a 25-minute focus session.</p>
+<div class="timer-label" id="focusTimerLabel">Focus session</div>
+<div class="timer" id="focusTimer">25:00</div>
+<div class="focus-actions">
+<button class="primary-btn" id="focusStartBtn">Start</button>
+<button class="secondary-btn" id="focusPauseBtn">Pause</button>
+<button class="secondary-btn" id="focusResetBtn">Reset</button>
+</div></div>
+<div class="focus-task-card">
+<h2>Choose a task</h2>
+<p class="focus-subtitle">Pick one active task to focus on right now.</p>
+<div id="focusTaskList" class="focus-task-list"></div>
+</div>
+</div></section>
+
+<section id="calendarSection" class="hidden">
+
+<div class="panel calendar-panel">
+    <div class="panel-heading">
+        <div>
+            <span class="section-kicker">
+                DEADLINE CALENDAR
+            </span>
+            <h2>
+                Academic Calendar
+            </h2>
+        </div>
+    </div>
+
+    <div class="calendar-toolbar">
+        <div class="calendar-nav">
+            <button type="button" id="prevMonth" title="Previous month">‹</button>
+            <button type="button" id="todayMonth" title="Current month">Today</button>
+            <button type="button" id="nextMonth" title="Next month">›</button>
+        </div>
+        <div class="calendar-month" id="calendarMonth"></div>
+        <div style="width:150px"></div>
+    </div>
+
+    <div class="calendar-grid" id="calendarGrid"></div>
+</div>
+
+</section>
+
+<!-- =====================================================
+     SETTINGS
+===================================================== -->
+
+<section id="settingsSection" class="hidden">
+
+<div class="panel">
+    <div class="panel-heading">
+        <div>
+            <span class="section-kicker">ACCOUNT & PREFERENCES</span>
+            <h2>Settings</h2>
+            <p>Manage your profile and planner preferences.</p>
+        </div>
+    </div>
+
+    <div class="settings-card">
+        <div class="profile-card">
+            <div class="profile-avatar-large" id="settingsAvatar">S</div>
+            <div class="profile-meta">
+                <strong id="settingsName">Student</strong>
+                <span id="settingsEmail">student@example.com</span>
+            </div>
+        </div>
+        <div class="settings-row">
+            <div class="settings-label"><strong>Account status</strong><span>Your account is signed in and connected to the planner.</span></div>
+            <strong style="font-size:12px;">Active</strong>
+        </div>
+    </div>
+
+    <div class="settings-grid">
+        <div class="settings-card">
+            <h3>Notifications</h3>
+            <p>Control browser reminders for approaching academic deadlines.</p>
+            <div class="settings-row">
+                <div class="settings-label"><strong>Deadline reminders</strong><span>Remember your reminder preference on this device.</span></div>
+                <label class="switch"><input type="checkbox" id="settingsReminderToggle"><span class="slider"></span></label>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <h3>Planner</h3>
+            <p>Choose how your academic workspace behaves.</p>
+            <div class="settings-row">
+                <div class="settings-label"><strong>Compact task cards</strong><span>Reduce spacing in task lists for a denser view.</span></div>
+                <label class="switch"><input type="checkbox" id="compactToggle"><span class="slider"></span></label>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <h3>Appearance</h3>
+            <p>Choose a light or dark workspace theme.</p>
+            <div class="settings-row">
+                <div class="settings-label"><strong>Dark mode</strong><span>Save your theme preference on this device.</span></div>
+                <label class="switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-card" style="margin-top:18px;">
+        <h3>Export Data</h3>
+        <p>Download your academic tasks as a CSV file for backup or reporting.</p>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" class="primary-btn" id="exportTasksBtn">Export CSV</button>
+        </div>
+    </div>
+
+    <div class="settings-card" style="margin-top:18px;">
+        <h3>Account</h3>
+        <p>Your profile is managed through the current login account.</p>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" class="secondary-btn" id="settingsLogoutBtn">Log out</button>
+        </div>
+    </div>
+</div>
+
+</section>
+
+<!-- =====================================================
+     MY TASKS
+===================================================== -->
+
+<section id="tasksSection" class="hidden">
+
+<div class="panel">
+
+    <div class="panel-heading">
+
+        <div>
+
+            <span class="section-kicker">
+                TASK MANAGEMENT
+            </span>
+
+            <h2>
+                My Tasks
+            </h2>
+
+        </div>
+
+        <div class="task-tools">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search tasks..."
+            >
+
+            <select id="statusFilter">
+
+                <option value="all">
+                    All
+                </option>
+
+                <option value="todo">
+                    To Do
+                </option>
+
+                <option value="progress">
+                    In Progress
+                </option>
+
+                <option value="completed">
+                    Completed
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <div id="allTasksList" class="task-list">
+    </div>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<!-- =====================================================
+     ADD TASK MODAL
+===================================================== -->
+
+<div class="modal-overlay" id="modalOverlay">
+
+<div class="modal">
+
+    <div class="modal-header">
+
+        <div>
+
+            <span class="section-kicker">
+                NEW TASK
+            </span>
+
+            <h2 id="modalTitle">
+                Add Academic Task
+            </h2>
+
+        </div>
+
+        <button
+            class="close-btn"
+            id="closeModal">
+            ×
+        </button>
+
+    </div>
+
+
+    <form id="taskForm">
+
+
+        <div class="form-group">
+
+            <label>
+                Task name
+            </label>
+
+            <input
+                type="text"
+                id="taskName"
+                placeholder="e.g. Digital Logic Assignment"
+                required
+            >
+
+        </div>
+
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label>
+                    Subject
+                </label>
+
+                <input
+                    type="text"
+                    id="taskSubject"
+                    placeholder="e.g. DLD"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Task type
+                </label>
+
+                <select id="taskType">
+
+                    <option>Assignment</option>
+                    <option>Lab Record</option>
+                    <option>Project</option>
+                    <option>Quiz</option>
+                    <option>Exam</option>
+                    <option>Presentation</option>
+                    <option>Other</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+            <label>Notes</label>
+            <textarea
+                id="taskNotes"
+                rows="3"
+                maxlength="2000"
+                placeholder="Optional: add instructions, links, or study notes..."
+            ></textarea>
+        </div>
+
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label>
+                    Deadline
+                </label>
+
+                <input
+                    type="date"
+                    id="taskDeadline"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Estimated effort
+                </label>
+
+                <select id="taskEffort">
+
+                    <option value="1">
+                        1 hour
+                    </option>
+
+                    <option value="2">
+                        2 hours
+                    </option>
+
+                    <option value="3">
+                        3 hours
+                    </option>
+
+                    <option value="4">
+                        4 hours
+                    </option>
+
+                    <option value="5">
+                        5+ hours
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Priority
+            </label>
+
+            <div class="priority-options">
+
+
+                <label class="priority-option">
+
+                    <input
+                        type="radio"
+                        name="priority"
+                        value="high"
+                        checked
+                    >
+
+                    <span class="priority-dot high-dot"></span>
+
+                    High
+
+                </label>
+
+
+                <label class="priority-option">
+
+                    <input
+                        type="radio"
+                        name="priority"
+                        value="medium"
+                    >
+
+                    <span class="priority-dot medium-dot"></span>
+
+                    Medium
+
+                </label>
+
+
+                <label class="priority-option">
+
+                    <input
+                        type="radio"
+                        name="priority"
+                        value="low"
+                    >
+
+                    <span class="priority-dot low-dot"></span>
+
+                    Low
+
+                </label>
+
+
+            </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="button"
+                class="secondary-btn"
+                id="cancelModal">
+
+                Cancel
+
+            </button>
+
+
+            <button
+                type="submit"
+                class="primary-btn"
+                id="modalSubmitBtn">
+
+                Add Task
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+<script src="js/core.js"></script>
+<script src="js/models/task-utils.js"></script>
+<script src="js/modules/dashboard.js"></script>
+<script src="js/modules/tasks.js"></script>
+<script src="js/modules/notifications-settings.js"></script>
+<script src="js/modules/analytics.js"></script>
+<script src="js/modules/focus-mode.js"></script>
+<script src="js/modules/calendar.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
