@@ -1,0 +1,94 @@
+TAP version 13
+# Subtest: urgency score is 10 for an overdue task
+ok 1 - urgency score is 10 for an overdue task
+  ---
+  duration_ms: 1.208694
+  type: 'test'
+  ...
+# Subtest: urgency score is 9 for a task due today
+ok 2 - urgency score is 9 for a task due today
+  ---
+  duration_ms: 0.166301
+  type: 'test'
+  ...
+# Subtest: urgency score is 7 for a task due tomorrow
+ok 3 - urgency score is 7 for a task due tomorrow
+  ---
+  duration_ms: 0.111227
+  type: 'test'
+  ...
+# Subtest: urgency score is 5 for tasks due in 2 or 3 days
+ok 4 - urgency score is 5 for tasks due in 2 or 3 days
+  ---
+  duration_ms: 0.930723
+  type: 'test'
+  ...
+# Subtest: urgency score is 3 for tasks due in 4 through 7 days
+ok 5 - urgency score is 3 for tasks due in 4 through 7 days
+  ---
+  duration_ms: 0.196416
+  type: 'test'
+  ...
+# Subtest: urgency score is 1 for a task due more than 7 days away
+ok 6 - urgency score is 1 for a task due more than 7 days away
+  ---
+  duration_ms: 0.242075
+  type: 'test'
+  ...
+# Subtest: priority contribution is 6 for high, 4 for medium, and 2 for low
+ok 7 - priority contribution is 6 for high, 4 for medium, and 2 for low
+  ---
+  duration_ms: 0.261164
+  type: 'test'
+  ...
+# Subtest: effort contribution is capped at 5 points
+ok 8 - effort contribution is capped at 5 points
+  ---
+  duration_ms: 0.104878
+  type: 'test'
+  ...
+# Subtest: negative or non-numeric effort contributes 0 points
+ok 9 - negative or non-numeric effort contributes 0 points
+  ---
+  duration_ms: 0.251269
+  type: 'test'
+  ...
+# Subtest: total score equals urgency plus priority plus effort contributions
+ok 10 - total score equals urgency plus priority plus effort contributions
+  ---
+  duration_ms: 0.345591
+  type: 'test'
+  ...
+# Subtest: recommendation excludes completed tasks
+ok 11 - recommendation excludes completed tasks
+  ---
+  duration_ms: 0.257188
+  type: 'test'
+  ...
+# Subtest: recommendation chooses the task with the highest score
+ok 12 - recommendation chooses the task with the highest score
+  ---
+  duration_ms: 0.143156
+  type: 'test'
+  ...
+# Subtest: when scores tie, recommendation chooses the earlier deadline
+ok 13 - when scores tie, recommendation chooses the earlier deadline
+  ---
+  duration_ms: 6.784713
+  type: 'test'
+  ...
+# Subtest: recommendation returns null when no unfinished tasks exist
+ok 14 - recommendation returns null when no unfinished tasks exist
+  ---
+  duration_ms: 0.123026
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 80.321017
