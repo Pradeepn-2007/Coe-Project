@@ -1,4 +1,4 @@
-[README-Deadline-Drift-API-Integration.md](https://github.com/user-attachments/files/34211606/README-Deadline-Drift-API-Integration.md)
+[README.md](https://github.com/user-attachments/files/34212712/README.md)
 # Deadline Drift — Academic Planner
 
 Deadline Drift is a student-focused academic planning web application. It helps students record coursework, track deadlines, review progress, and decide which unfinished task to work on next. This project is a prototype built with HTML, CSS, JavaScript, PHP, and MySQL.
@@ -85,6 +85,10 @@ deadline-drift/
 - `app.js`: Shared rendering, CSV export, event wiring, and application startup.
 
 The files currently load as classic scripts in a defined order to remain compatible with the prototype's shared functions.
+
+## Code comments and module guide
+
+The JavaScript frontend files include module headers and function-level comments describing each module's responsibility and key operations. The Focus Mode timer has also been reformatted to make its countdown and pause/reset behavior easier to review. See `docs/code-comment-map.md` for the module map, important boundaries, and commenting convention. These documentation-only changes do not intentionally alter application behavior.
 
 ## Automated unit tests
 
@@ -266,6 +270,14 @@ Estimated effort adds one point per estimated hour, capped at five points. For e
 Completed tasks are excluded. The highest-scoring unfinished task is recommended. If scores tie, the earlier deadline wins; if both score and deadline are equal, the current task-list order is retained.
 
 These weights are initial design assumptions, not experimentally established values. A long task can receive more points because of its effort estimate; user testing should determine whether that behavior is useful. See `docs/smart-priority.md` for test cases and rationale.
+
+## Quick test runner (Windows)
+
+To avoid typing commands individually, double-click `run-tests.bat` in the project root. Choose option 1 for the Smart Priority unit tests, option 2 for the PHP/MySQL API integration tests, or option 3 for both. Option 1 does not require XAMPP or a database. Options 2 and 3 require Apache and MySQL to be running and a working `http://localhost/deadline-drift/` API. The API suite creates two temporary accounts and one temporary task; it deletes the task after a successful run, but the account rows remain. The test script prints the temporary email addresses.
+
+You can also use the npm scripts if Node.js/npm are installed: `npm test` runs the unit suite, `npm run test:api` runs the API suite, and `npm run test:all` runs both in sequence.
+
+Record the results actually observed on your computer in `docs/test-execution-record.md`. Do not mark the API or browser tests as passed based only on syntax checks.
 
 ## Unit-level checks, integration tests, and error boundaries
 
