@@ -1,4 +1,4 @@
-[README-Deadline-Drift-Testing-Updated.md](https://github.com/user-attachments/files/34211402/README-Deadline-Drift-Testing-Updated.md)
+[README-Deadline-Drift-API-Integration.md](https://github.com/user-attachments/files/34211606/README-Deadline-Drift-API-Integration.md)
 # Deadline Drift — Academic Planner
 
 Deadline Drift is a student-focused academic planning web application. It helps students record coursework, track deadlines, review progress, and decide which unfinished task to work on next. This project is a prototype built with HTML, CSS, JavaScript, PHP, and MySQL.
@@ -63,9 +63,11 @@ deadline-drift/
 │   ├── student-validation-form.md
 │   ├── review2-validation-status.md
 │   ├── api-and-error-boundaries.md
-│   └── unit-testing-and-error-boundaries.md
+│   ├── unit-testing-and-error-boundaries.md
+│   └── api-integration-testing.md
 └── tests/
-    └── smart-priority.test.js
+    ├── smart-priority.test.js
+    └── api-integration.test.js
 ```
 
 **Important:** The ZIP contains the updated `api/tasks.php` endpoint but not database credentials or the other PHP API files. Keep your existing `api/db.php`, `login.php`, `register.php`, `me.php`, and `logout.php`. Back up the old `api/tasks.php` before replacing it with the packaged version. This endpoint requires the existing `tasks.user_id` and `tasks.notes` columns.
@@ -93,6 +95,16 @@ node --test tests/smart-priority.test.js
 ```
 
 The suite covers deadline urgency boundaries, priority points, effort limits, total-score calculation, completed-task exclusion, highest-score selection, tie-breaking, and the no-active-task case. The packaged test suite was executed with Node.js v22.16.0 on 31 October 2026: **14 passed, 0 failed**. This is a unit-test result only; it does not replace local PHP/MySQL or browser regression testing. See `docs/unit-testing-and-error-boundaries.md` for individual test IDs and the manual API integration plan.
+
+### PHP/MySQL API integration tests
+
+A separate live-server integration test is provided at `tests/api-integration.test.js`. It exercises registration, duplicate-email validation, login/session persistence, task CRUD, input validation, unsupported methods, cross-account task isolation, and logout. It requires Apache/PHP, MySQL, and Node.js 18 or later. Run it from the project root with:
+
+```bash
+node --test tests/api-integration.test.js
+```
+
+The API test creates two temporary user accounts and one task. It deletes the task but leaves the accounts in the database; see `docs/api-integration-testing.md` for cleanup SQL and the complete procedure. **This test has not been run against the user's local XAMPP database from this authoring environment.** Do not report its result as passed until it has been executed locally. The Smart Priority unit-test result above is separate and does not imply that the PHP/MySQL integration test passed.
 
 ## Requirements
 
