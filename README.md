@@ -1,4 +1,4 @@
-[README-Deadline-Drift-Updated.md](https://github.com/user-attachments/files/34211311/README-Deadline-Drift-Updated.md)
+[README-Deadline-Drift-Testing-Updated.md](https://github.com/user-attachments/files/34211402/README-Deadline-Drift-Testing-Updated.md)
 # Deadline Drift — Academic Planner
 
 Deadline Drift is a student-focused academic planning web application. It helps students record coursework, track deadlines, review progress, and decide which unfinished task to work on next. This project is a prototype built with HTML, CSS, JavaScript, PHP, and MySQL.
@@ -54,21 +54,21 @@ deadline-drift/
 │       ├── calendar.js
 │       ├── focus-mode.js
 │       └── notifications-settings.js
-├── api/                          # Keep in the local XAMPP project
-│   ├── db.php
-│   ├── register.php
-│   ├── login.php
-│   ├── me.php
-│   ├── logout.php
-│   └── tasks.php
-└── docs/
-    ├── smart-priority.md
-    ├── testing-checklist.md
-    ├── student-validation-form.md
-    └── review2-validation-status.md
+├── api/
+│   ├── README.md
+│   └── tasks.php                  # Updated endpoint; other API files remain local
+├── docs/
+│   ├── smart-priority.md
+│   ├── testing-checklist.md
+│   ├── student-validation-form.md
+│   ├── review2-validation-status.md
+│   ├── api-and-error-boundaries.md
+│   └── unit-testing-and-error-boundaries.md
+└── tests/
+    └── smart-priority.test.js
 ```
 
-**Important:** The modular ZIP contains the frontend and documentation. It does not replace the PHP API folder. Keep the existing working `api` folder in your XAMPP project when installing the frontend update.
+**Important:** The ZIP contains the updated `api/tasks.php` endpoint but not database credentials or the other PHP API files. Keep your existing `api/db.php`, `login.php`, `register.php`, `me.php`, and `logout.php`. Back up the old `api/tasks.php` before replacing it with the packaged version. This endpoint requires the existing `tasks.user_id` and `tasks.notes` columns.
 
 ### Main JavaScript responsibilities
 
@@ -84,6 +84,16 @@ deadline-drift/
 
 The files currently load as classic scripts in a defined order to remain compatible with the prototype's shared functions.
 
+## Automated unit tests
+
+A no-dependency Node.js test suite exercises the production Smart Priority functions. Install Node.js 18 or later, open a terminal in the project root, and run:
+
+```bash
+node --test tests/smart-priority.test.js
+```
+
+The suite covers deadline urgency boundaries, priority points, effort limits, total-score calculation, completed-task exclusion, highest-score selection, tie-breaking, and the no-active-task case. The packaged test suite was executed with Node.js v22.16.0 on 31 October 2026: **14 passed, 0 failed**. This is a unit-test result only; it does not replace local PHP/MySQL or browser regression testing. See `docs/unit-testing-and-error-boundaries.md` for individual test IDs and the manual API integration plan.
+
 ## Requirements
 
 - Windows with XAMPP installed, or an equivalent environment with Apache, PHP, and MySQL/MariaDB.
@@ -95,8 +105,8 @@ The files currently load as classic scripts in a defined order to remain compati
 1. Start **Apache** and **MySQL** in the XAMPP Control Panel.
 2. Back up the existing folder `C:\xampp\htdocs\deadline-drift` before replacing files.
 3. Extract the modular ZIP.
-4. Copy `index.html`, `css/`, `js/`, and `docs/` into `C:\xampp\htdocs\deadline-drift\`. Replace `index.html` and merge the folders if Windows asks.
-5. **Keep the existing `api/` folder and PHP files.** If setting up from scratch, create the required PHP API files and configure `api/db.php` for your local database first.
+4. Copy `index.html`, `css/`, `js/`, `docs/`, and `tests/` into `C:\xampp\htdocs\deadline-drift\`. Replace `index.html` and merge folders if Windows asks.
+5. Back up the existing `api/tasks.php`, then copy the packaged `api/tasks.php` into the same folder. Keep the existing `db.php`, `login.php`, `register.php`, `me.php`, and `logout.php` unchanged. Configure `db.php` locally; do not overwrite it with a sample file.
 6. Make sure the database is named `deadline_drift` and contains the `users` and `tasks` tables described below. If the existing database already has the columns, do not run duplicate `ALTER TABLE` commands.
 7. Open `http://localhost/deadline-drift/` in a browser. Do not open `index.html` directly with `file:///`, because the PHP API requires an HTTP server.
 8. Register an account, sign in, and test the features using `docs/testing-checklist.md`.
@@ -247,48 +257,25 @@ These weights are initial design assumptions, not experimentally established val
 
 ## Unit-level checks, integration tests, and error boundaries
 
-The current project uses a lightweight manual test plan rather than an installed JavaScript/PHP test framework. The cases below are **test specifications**. Mark them as passed only after executing them and recording the actual result in `docs/testing-checklist.md`.
+The project now includes a no-dependency automated JavaScript unit suite for Smart Priority, plus a separate manual test plan for PHP/MySQL and browser integration. The automated suite was run with Node.js v22.16.0 on 31 October 2026 and returned **14 passed, 0 failed**. This result covers only the tested Smart Priority functions; it does not mark the API or full application regression tests as passed.
 
-### Pure JavaScript helper and Smart Priority checks
+Run the automated tests from the project root:
 
-| Test ID | Unit under test | Input / condition | Expected result |
-|---|---|---|---|
-| `DATE-01` | `getDateOffset(0)` | Current local date | Returns today's date as `YYYY-MM-DD` |
-| `DATE-02` | `daysUntil()` | Yesterday / today / tomorrow | Returns `-1` / `0` / `1` |
-| `DATE-03` | `priorityWeight()` | `high`, `medium`, `low` | Returns `3`, `2`, `1` |
-| `SCORE-01` | `getScoreBreakdown()` | Yesterday, High, 2 hours | Total score `18` |
-| `SCORE-02` | `getScoreBreakdown()` | Today, Medium, 1 hour | Total score `14` |
-| `SCORE-03` | `getScoreBreakdown()` | Tomorrow, Low, 4 hours | Total score `13` |
-| `SCORE-04` | Effort cap | In 10 days, High, 8 hours | Effort contribution is `5`; total score `12` |
-| `SCORE-05` | `getRecommendation()` | All tasks completed | Returns no recommendation (`null`) |
-| `SCORE-06` | Recommendation tie-break | Equal scores, different deadlines | Earlier deadline is selected |
+```bash
+node --test tests/smart-priority.test.js
+```
 
-### API validation and failure-boundary checks
+The automated cases cover each deadline urgency bucket, High/Medium/Low priority contributions, the effort cap and invalid effort boundary, total score, completed-task exclusion, highest-score selection, tie-breaking by earlier deadline, and the no-active-task case.
 
-| Test ID | Request / fault injection | Expected boundary behavior |
-|---|---|---|
-| `AUTH-01` | Register with a missing field | HTTP `400`; account is not created |
-| `AUTH-02` | Register with an invalid email | HTTP `400`; account is not created |
-| `AUTH-03` | Register with password shorter than 6 characters | HTTP `400`; account is not created |
-| `AUTH-04` | Register an email that already exists | HTTP `409`; existing account remains unchanged |
-| `AUTH-05` | Login with wrong email or password | HTTP `401`; no authenticated user data is returned |
-| `TASK-01` | Call `tasks.php` without login | HTTP `401`; task data is not returned |
-| `TASK-02` | POST a task with a missing required field | HTTP `400`; no task is inserted |
-| `TASK-03` | POST invalid priority or status | HTTP `400`; no invalid enum value is stored |
-| `TASK-04` | PUT with an invalid ID or invalid status | HTTP `400`; existing task remains unchanged |
-| `TASK-05` | DELETE with ID `0` or missing ID | HTTP `400`; no task is deleted |
-| `TASK-06` | Try to update/delete another user's task ID | No row belonging to the other user is changed or deleted |
-| `TASK-07` | Call `tasks.php` using an unsupported HTTP method | HTTP `405` |
-| `DB-01` | Stop MySQL and call a database-backed endpoint | HTTP `500` JSON error; no credentials or SQL details shown |
-| `NET-01` | Stop Apache or open the page using `file:///` | Frontend reports a connection failure; restore Apache and use the localhost URL |
+The manual integration checklist covers registration, login, session enforcement, create/read/update/delete task operations, notes, task ownership, database persistence, unsupported methods, invalid inputs, and database/network failures. Run those cases against the XAMPP application and record the actual response and database effect before marking them as passed. For an authenticated session, the updated task endpoint checks supported methods before decoding the request body, so an unsupported method returns HTTP `405` consistently. An unauthenticated call is rejected first with HTTP `401`.
 
-**Input boundary notes:** Task creation normalizes effort values below one hour to `1`; full task editing rejects effort below one hour with HTTP `400`. Both paths validate priority and status against their allowed values. The API uses prepared statements and the session's user ID for task ownership.
+See:
+- `docs/unit-testing-and-error-boundaries.md` — individual automated test IDs, execution result, and manual API/error-boundary test matrix.
+- `docs/api-and-error-boundaries.md` — API methods, request formats, and expected error responses.
+- `docs/testing-checklist.md` — browser and regression checklist.
+- `docs/student-validation-form.md` — form for recording genuine student feedback.
 
-### Integration / regression checks
-
-Use `docs/testing-checklist.md` to test the complete browser-to-PHP-to-MySQL flow: register, log in, add a task, refresh, edit the task and notes, change status, delete it, log out, and verify that another account cannot see or alter it. Then test calendar, analytics, Focus Mode, reminders, preferences, and CSV export. Confirm that the modular frontend still loads after a hard refresh.
-
-Structured usability testing with at least three student participants has **not yet been documented as complete**. `docs/student-validation-form.md` is a blank template for genuine, anonymized responses. Do not present invented ratings or comments as test results. Update `docs/review2-validation-status.md` only when new checks or participant sessions have actually occurred.
+Structured usability testing with at least three student participants has **not yet been documented as complete**. Do not present invented ratings or comments as test results.
 
 ## Known limitations
 
@@ -309,6 +296,8 @@ Structured usability testing with at least three student participants has **not 
 ## Documentation
 
 - [`docs/smart-priority.md`](docs/smart-priority.md) — scoring rule, rationale, examples, and test plan.
+- [`docs/api-and-error-boundaries.md`](docs/api-and-error-boundaries.md) — API contracts and response boundaries.
+- [`docs/unit-testing-and-error-boundaries.md`](docs/unit-testing-and-error-boundaries.md) — automated unit tests and manual integration test matrix.
 - [`docs/testing-checklist.md`](docs/testing-checklist.md) — manual feature regression checklist.
 - [`docs/api-and-error-boundaries.md`](docs/api-and-error-boundaries.md) — endpoint contracts and API failure-boundary test notes.
 - [`docs/student-validation-form.md`](docs/student-validation-form.md) — form for recording genuine student feedback.
