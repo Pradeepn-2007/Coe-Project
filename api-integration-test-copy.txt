@@ -1,0 +1,229 @@
+/*
+ * Deadline Drift - PHP/MySQL API integration test
+ * Requirements: Node.js 18+, XAMPP Apache + MySQL running.
+ * Run from the project folder:
+ *   node tests/api-integration.test.js
+ * Optional URL override (Windows PowerShell):
+ *   $env:DEADLINE_DRIFT_BASE_URL='http://localhost/deadline-drift'
+ */
+'use strict';
+
+const http = require('node:http');
+const https = require('node:https');
+const crypto = require('node:crypto');
+const assert = require('node:assert/strict');
+
+const BASE = (process.env.DEADLINE_DRIFT_BASE_URL || 'http://localhost/deadline-drift').replace(/\/$/, '');
+const API = `${BASE}/api`;
+const tag = `${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+const password = `DdTest-${crypto.randomBytes(8).toString('hex')}!`;
+const email1 = `dd-test-one-${tag}@example.com`;
+const email2 = `dd-test-two-${tag}@example.com`;
+const jar1 = {};
+const jar2 = {};
+let taskId = null;
+let passed = 0;
+let failed = 0;
+
+function cookies(jar) {
+  return Object.entries(jar).map(([k, v]) => `${k}=${v}`).join('; ');
+}
+
+function saveCookies(jar, headers) {
+  if (!headers) return;
+  for (const item of (Array.isArray(headers) ? headers : [headers])) {
+    const first = item.split(';', 1)[0];
+    const i = first.indexOf('=');
+    if (i > 0) jar[first.slice(0, i).trim()] = first.slice(i + 1).trim();
+  }
+}
+
+function request(file, method = 'GET', body, jar = null) {
+  const url = new URL(`${API}/${file}`);
+  const transport = url.protocol === 'https:' ? https : http;
+  const payload = body === undefined ? null : Buffer.from(JSON.stringify(body));
+  const headers = { Accept: 'application/json' };
+  if (payload) {
+    headers['Content-Type'] = 'application/json';
+    headers['Content-Length'] = String(payload.length);
+  }
+  if (jar && Object.keys(jar).length) headers.Cookie = cookies(jar);
+
+  return new Promise((resolve, reject) => {
+    const req = transport.request(url, { method, headers, timeout: 10000 }, (res) => {
+      saveCookies(jar || {}, res.headers['set-cookie']);
+      const chunks = [];
+      res.on('data', (chunk) => chunks.push(chunk));
+      res.on('end', () => {
+        const raw = Buffer.concat(chunks).toString('utf8');
+        let json;
+        try { json = raw ? JSON.parse(raw) : null; }
+        catch { return reject(new Error(`${file} returned non-JSON (HTTP ${res.statusCode}): ${raw.slice(0, 180)}`)); }
+        resolve({ status: res.statusCode, json });
+      });
+    });
+    req.on('timeout', () => req.destroy(new Error('Request timed out')));
+    req.on('error', (err) => reject(new Error(`Cannot reach ${url.href}. Check Apache and the URL. ${err.message}`)));
+    if (payload) req.write(payload);
+    req.end();
+  });
+}
+
+async function check(label, fn) {
+  try {
+    await fn();
+    passed++;
+    console.log(`PASS  ${label}`);
+  } catch (err) {
+    failed++;
+    console.error(`FAIL  ${label}\n      ${err.message}`);
+    throw err;
+  }
+}
+
+function status(result, expected, label) {
+  assert.equal(result.status, expected, `${label}: expected HTTP ${expected}, received ${result.status}; body=${JSON.stringify(result.json)}`);
+}
+
+function taskData(overrides = {}) {
+  return {
+    name: `Integration test task ${tag}`,
+    subject: 'API Testing',
+    type: 'Assignment',
+    deadline: '2099-12-31',
+    effort: 2,
+    priority: 'high',
+    status: 'todo',
+    notes: 'Temporary test note',
+    ...overrides,
+  };
+}
+
+async function main() {
+  console.log(`\nDeadline Drift API test: ${API}`);
+  console.log('Check that XAMPP Apache and MySQL are running.\n');
+
+  await check('PHP API is reachable and session is initially logged out', async () => {
+    const r = await request('me.php');
+    status(r, 200, 'me.php');
+    assert.equal(r.json?.success, true);
+    assert.equal(r.json?.logged_in, false);
+  });
+
+  await check('Tasks endpoint blocks unauthenticated access', async () => {
+    const r = await request('tasks.php');
+    status(r, 401, 'Unauthenticated tasks.php');
+  });
+
+  await check('User registration succeeds', async () => {
+    const r = await request('register.php', 'POST', { name: 'API Test One', email: email1, password });
+    status(r, 200, 'Registration');
+    assert.equal(r.json?.success, true);
+  });
+
+  await check('Duplicate email registration is rejected', async () => {
+    const r = await request('register.php', 'POST', { name: 'Duplicate', email: email1, password });
+    status(r, 409, 'Duplicate registration');
+    assert.equal(r.json?.success, false);
+  });
+
+  await check('Incorrect password is rejected', async () => {
+    const r = await request('login.php', 'POST', { email: email1, password: 'wrong-password' }, jar1);
+    status(r, 401, 'Invalid login');
+  });
+
+  await check('Valid login creates a PHP session', async () => {
+    const r = await request('login.php', 'POST', { email: email1, password }, jar1);
+    status(r, 200, 'Login');
+    assert.equal(r.json?.success, true);
+    assert.ok(Object.keys(jar1).length > 0, 'No PHP session cookie was returned');
+    const me = await request('me.php', 'GET', undefined, jar1);
+    status(me, 200, 'Authenticated me.php');
+    assert.equal(me.json?.logged_in, true);
+    assert.equal(me.json?.user?.email, email1);
+  });
+
+  await check('Task can be created and retrieved with its notes', async () => {
+    const created = await request('tasks.php', 'POST', taskData(), jar1);
+    status(created, 200, 'Create task');
+    assert.equal(created.json?.success, true);
+    taskId = Number(created.json?.id);
+    assert.ok(Number.isInteger(taskId) && taskId > 0, 'Response did not contain a valid task id');
+    const list = await request('tasks.php', 'GET', undefined, jar1);
+    status(list, 200, 'List tasks');
+    const found = list.json?.tasks?.find((t) => Number(t.id) === taskId);
+    assert.ok(found, 'Created task was not returned');
+    assert.equal(found.notes, 'Temporary test note');
+  });
+
+  await check('Full task edit updates fields and notes', async () => {
+    const edited = taskData({ id: taskId, name: `Edited task ${tag}`, subject: 'Updated Subject', notes: 'Updated note' });
+    const r = await request('tasks.php', 'PUT', edited, jar1);
+    status(r, 200, 'Edit task');
+    assert.equal(r.json?.success, true);
+    const list = await request('tasks.php', 'GET', undefined, jar1);
+    const found = list.json?.tasks?.find((t) => Number(t.id) === taskId);
+    assert.equal(found?.name, edited.name);
+    assert.equal(found?.subject, 'Updated Subject');
+    assert.equal(found?.notes, 'Updated note');
+  });
+
+  await check('Status-only update works and invalid status is rejected', async () => {
+    const good = await request('tasks.php', 'PUT', { id: taskId, status: 'progress' }, jar1);
+    status(good, 200, 'Status update');
+    assert.equal(good.json?.success, true);
+    const bad = await request('tasks.php', 'PUT', { id: taskId, status: 'invalid-status' }, jar1);
+    status(bad, 400, 'Invalid status');
+  });
+
+  await check('A second user cannot view or delete the first user task', async () => {
+    const reg = await request('register.php', 'POST', { name: 'API Test Two', email: email2, password });
+    status(reg, 200, 'Second registration');
+    assert.equal(reg.json?.success, true);
+    const login = await request('login.php', 'POST', { email: email2, password }, jar2);
+    status(login, 200, 'Second login');
+    assert.ok(Object.keys(jar2).length > 0, 'Second session cookie missing');
+    const list = await request('tasks.php', 'GET', undefined, jar2);
+    status(list, 200, 'Second user task list');
+    assert.equal(list.json?.tasks?.some((t) => Number(t.id) === taskId), false);
+    await request('tasks.php', 'DELETE', { id: taskId }, jar2);
+    const ownerList = await request('tasks.php', 'GET', undefined, jar1);
+    assert.equal(ownerList.json?.tasks?.some((t) => Number(t.id) === taskId), true);
+  });
+
+  await check('Unsupported HTTP method returns 405', async () => {
+    const r = await request('tasks.php', 'PATCH', undefined, jar1);
+    status(r, 405, 'PATCH tasks.php');
+  });
+
+  await check('Task owner can delete the test task', async () => {
+    const r = await request('tasks.php', 'DELETE', { id: taskId }, jar1);
+    status(r, 200, 'Delete task');
+    assert.equal(r.json?.success, true);
+    const list = await request('tasks.php', 'GET', undefined, jar1);
+    assert.equal(list.json?.tasks?.some((t) => Number(t.id) === taskId), false);
+    taskId = null;
+  });
+
+  await check('Logout clears the session', async () => {
+    const r = await request('logout.php', 'POST', {}, jar1);
+    status(r, 200, 'Logout');
+    const me = await request('me.php', 'GET', undefined, jar1);
+    status(me, 200, 'Session after logout');
+    assert.equal(me.json?.logged_in, false);
+    const tasks = await request('tasks.php', 'GET', undefined, jar1);
+    status(tasks, 401, 'Tasks after logout');
+  });
+
+  console.log(`\nRESULT: ${passed} passed, ${failed} failed.`);
+  console.log('Note: two temporary test accounts remain in MySQL. Remove them from phpMyAdmin if desired.');
+}
+
+main().catch(async (err) => {
+  console.error(`\nTEST STOPPED: ${passed} passed, ${failed} failed.`);
+  if (taskId && Object.keys(jar1).length) {
+    try { await request('tasks.php', 'DELETE', { id: taskId }, jar1); } catch { /* best-effort cleanup */ }
+  }
+  console.error(err.message);
+  process.exitCode = 1;
+});
